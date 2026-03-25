@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>فعالية قلد الرقصة 💃✨</title>
+    <style>
+        :root {
+            --primary-pink: #ff4d6d;
+            --hot-pink: #ff0054;
+            --bg-cream: #fff9ec;
+            --white: #ffffff;
+            --yellow: #ffbd00;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-cream);
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; 
+            padding: 15px;
+            box-sizing: border-box;
+            background-image: radial-gradient(#ffccd5 2px, transparent 2px);
+            background-size: 40px 40px;
+        }
+
+        header { text-align: center; width: 100%; padding-top: 10px; }
+        .main-title { font-size: clamp(2rem, 5vw, 4rem); margin: 0; color: #222; }
+        .sub-headline {
+            font-size: clamp(0.9rem, 2vw, 1.5rem);
+            color: var(--hot-pink);
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .grid-wrapper {
+            background: rgba(255, 255, 255, 0.4);
+            padding: 15px;
+            border-radius: 30px;
+            border: 3px solid var(--white);
+            backdrop-filter: blur(10px);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px;
+        }
+
+        .card {
+            width: clamp(60px, 9vw, 95px);
+            height: clamp(60px, 9vw, 95px);
+            background: var(--primary-pink);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.2rem, 2.5vw, 2.2rem);
+            font-weight: 800;
+            cursor: pointer;
+            border: 4px solid var(--white);
+            box-shadow: 0 6px 0px #c9184a;
+        }
+
+        .card.hidden { opacity: 0; transform: scale(0); pointer-events: none; transition: 0.5s; }
+
+        footer { width: 100%; text-align: center; padding-bottom: 10px; }
+        .encouragement { font-size: clamp(1.5rem, 4vw, 3rem); color: var(--primary-pink); margin: 0; }
+
+        /* POPUPS */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-box {
+            background: var(--white);
+            padding: 10px;
+            border-radius: 25px;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            border: 6px solid var(--yellow);
+        }
+
+        video { width: 100%; border-radius: 15px; display: block; background: #000; }
+
+        .close-btn {
+            position: absolute;
+            top: -15px; right: -15px;
+            background: #222; color: white;
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: 3px solid white; font-weight: bold;
+            z-index: 1100;
+        }
+
+        .lucky-msg { font-size: 2rem; color: #2b9348; padding: 40px 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="main-title">قلد الرقصة 💃🥳</h1>
+        <div class="sub-headline">على كل شخص اختيار رقم وتقليد الرقصه الي تطلع له 🎈✨</div>
+    </header>
+
+    <div class="grid-wrapper">
+        <div class="cards-grid" id="mainGrid"></div>
+    </div>
+
+    <footer>
+        <h2 class="encouragement">🔥🔥 نبغى حماااس وتشجيع 👏✨</h2>
+    </footer>
+
+    <div class="overlay" id="videoOverlay">
+        <div class="popup-box">
+            <div class="close-btn" onclick="closePopups()">✕</div>
+            <video id="vPlayer" controls playsinline preload="auto">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <div class="overlay" id="emptyOverlay">
+        <div class="popup-box">
+            <div class="close-btn" onclick="closePopups()">✕</div>
+            <div class="lucky-msg">🤩 واااااو حظك رهيب!<br>لقد نجوت من العقاب 🥂✨</div>
+        </div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('mainGrid');
+        const vPlayer = document.getElementById('vPlayer');
+        const luckyIndices = [];
+        let lastClickedCard = null;
+
+        // Randomly pick 4 safe numbers
+        while(luckyIndices.length < 4) {
+            let r = Math.floor(Math.random() * 20) + 1;
+            if(!luckyIndices.includes(r)) luckyIndices.push(r);
+        }
+
+        for(let i=1; i<=20; i++) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerText = i;
+            
+            card.onclick = () => {
+                lastClickedCard = card;
+                
+                if(luckyIndices.includes(i)) {
+                    document.getElementById('emptyOverlay').style.display = 'flex';
+                } else {
+                    // Koder Fix: Construct path clearly
+                    const videoSrc = "video" + i + ".mp4";
+                    vPlayer.src = videoSrc;
+                    vPlayer.load(); // Forces the player to find the file
+                    
+                    document.getElementById('videoOverlay').style.display = 'flex';
+                    
+                    // iPad Fix: Play only after the source is loaded
+                    vPlayer.oncanplay = () => {
+                        vPlayer.play().catch(err => {
+                            console.log("Manual play required");
+                        });
+                    };
+                }
+            };
+            grid.appendChild(card);
+        }
+
+        function closePopups() {
+            document.getElementById('videoOverlay').style.display = 'none';
+            document.getElementById('emptyOverlay').style.display = 'none';
+            vPlayer.pause();
+            vPlayer.src = ""; // Clear source to reset player
+            if (lastClickedCard) {
+                lastClickedCard.classList.add('hidden');
+                lastClickedCard = null;
+            }
+        }
+    </script>
+</body>
+</html>
